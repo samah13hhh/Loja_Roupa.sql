@@ -1,0 +1,209 @@
+CREATE DATABASE Loja_Roupas;
+
+USE Loja_Roupas;
+
+CREATE TABLE IF NOT EXISTS Categoria (
+  cod_categoria INT PRIMARY KEY,
+  nome VARCHAR(50),
+  descricao VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS Fornecedor (
+  cod_fornecedor INT PRIMARY KEY,
+  nome VARCHAR(100),
+  telefone VARCHAR(20),
+  email VARCHAR(100),
+  cnpj VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS Produto (
+  cod_produto INT PRIMARY KEY,
+  nome VARCHAR(120),
+  descricao VARCHAR(255),
+  preco DECIMAL(10,2),
+  tamanho VARCHAR(10),
+  cor VARCHAR(30),
+  marca VARCHAR(50),
+  cod_categoria INT,
+  cod_fornecedor INT,
+  codigo_barras VARCHAR(30),
+  FOREIGN KEY (cod_categoria) REFERENCES Categoria(cod_categoria),
+  FOREIGN KEY (cod_fornecedor) REFERENCES Fornecedor(cod_fornecedor)
+);
+
+CREATE TABLE IF NOT EXISTS Cliente (
+  cod_cliente INT PRIMARY KEY,
+  nome VARCHAR(150),
+  endereco VARCHAR(255),
+  telefone VARCHAR(20),
+  email VARCHAR(100),
+  cpf VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS Funcionario (
+  cod_func INT PRIMARY KEY,
+  nome VARCHAR(120),
+  cargo VARCHAR(50),
+  telefone VARCHAR(20),
+  salario DECIMAL(10,2)
+);
+
+CREATE TABLE IF NOT EXISTS Venda (
+  cod_venda INT PRIMARY KEY,
+  data_venda DATE,
+  cod_cliente INT,
+  cod_func INT,
+  forma_pagamento VARCHAR(30),
+  desconto DECIMAL(10,2),
+  FOREIGN KEY (cod_cliente) REFERENCES Cliente(cod_cliente),
+  FOREIGN KEY (cod_func) REFERENCES Funcionario(cod_func)
+);
+
+CREATE TABLE IF NOT EXISTS ItemVenda (
+  cod_venda INT,
+  cod_produto INT,
+  quantidade INT,
+  valor_unit DECIMAL(10,2),
+  PRIMARY KEY (cod_venda, cod_produto),
+  FOREIGN KEY (cod_venda) REFERENCES Venda(cod_venda),
+  FOREIGN KEY (cod_produto) REFERENCES Produto(cod_produto)
+);
+
+CREATE TABLE IF NOT EXISTS Estoque (
+  cod_produto INT PRIMARY KEY,
+  quantidade INT,
+  data_entrada DATE,
+  data_saida DATE,
+  localizacao VARCHAR(50),
+  FOREIGN KEY (cod_produto) REFERENCES Produto(cod_produto)
+);
+
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (51,46,1,286.65);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (52,1,1,234.77);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (52,3,2,234.52);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (52,46,2,93.54);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (52,14,4,208.57);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (53,20,4,92.67);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (53,3,1,172.16);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (53,34,2,284.28);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (54,49,2,186.42);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (55,21,3,242.07);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (55,41,1,259.53);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (55,11,1,76.11);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (56,15,3,249.67);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (56,11,3,268.1);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (56,38,4,249.47);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (56,6,4,286.23);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (57,33,3,42.44);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (57,4,2,122.95);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (57,40,3,213.96);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (57,12,2,176.03);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (58,11,4,257.05);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (59,35,3,237.53);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (59,39,3,229.67);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (59,8,4,67.6);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (59,36,4,181.69);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (60,7,4,179.95);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (60,45,3,127.86);
+INSERT INTO ItemVenda (cod_venda,cod_produto,quantidade,valor_unit) VALUES (60,30,2,146.68);
+
+ALTER TABLE Produto MODIFY COLUMN codigo_barras VARCHAR(33);
+ALTER TABLE Cliente MODIFY COLUMN cpf VARCHAR(22);
+ALTER TABLE Fornecedor MODIFY COLUMN cnpj VARCHAR(25);
+ALTER TABLE Venda MODIFY COLUMN forma_pagamento VARCHAR(33);
+ALTER TABLE Funcionario MODIFY COLUMN salario DECIMAL(10.2);
+ALTER TABLE Categoria MODIFY COLUMN descricao VARCHAR(220);
+ALTER TABLE Estoque MODIFY COLUMN localizacao VARCHAR(60);
+ALTER TABLE Venda MODIFY COLUMN desconto DECIMAL(10,2);
+ALTER TABLE Produto MODIFY preco DECIMAL(12.2);
+ALTER TABLE Cliente MODIFY nome VARCHAR(155);
+
+ALTER TABLE Produto MODIFY COLUMN preco DECIMAL(10,2);
+UPDATE Produto SET preco = CAST(preco AS DECIMAL(10,2)) * 0.9 WHERE cod_categoria = 1;
+
+UPDATE Estoque SET quantidade = quantidade + 10 WHERE localizacao = 'Depósito';
+DELETE FROM Cliente WHERE cod_cliente = 40;
+UPDATE Funcionario SET salario = salario * 1.05 WHERE cargo = 'Vendedor';
+
+-- Primeiro remover produtos filhos e depois fornecedores
+DELETE FROM Produto WHERE cod_fornecedor = 10;
+DELETE FROM Fornecedor WHERE cod_fornecedor = 10;
+
+UPDATE Produto SET marca = 'MarcaX' WHERE cod_produto BETWEEN 1 AND 5;
+DELETE FROM Estoque WHERE quantidade = 0;
+UPDATE Venda SET desconto = 0 WHERE forma_pagamento = 'Pix';
+UPDATE Cliente SET telefone = '0000-0000' WHERE cod_cliente = 1;
+DELETE FROM ItemVenda WHERE quantidade <= 0;
+UPDATE Produto SET preco = CAST(preco AS DECIMAL(10,2)) + 5 WHERE cor = 'Vermelho';
+UPDATE Estoque SET localizacao = 'Loja 1' WHERE localizacao = 'Armazem A';
+
+-- Apagar venda 59 corretamente (filho primeiro)
+DELETE FROM ItemVenda WHERE cod_venda = 59;
+DELETE FROM Venda WHERE cod_venda = 59;
+
+UPDATE Cliente SET email = CONCAT('cliente',cod_cliente,'@novo.com') WHERE cod_cliente <= 10;
+
+-- Apagar produto 50 corretamente
+DELETE FROM ItemVenda WHERE cod_produto = 50;
+DELETE FROM Estoque;
+
+-- 1. Todas as vendas com cliente e funcionário
+SELECT v.cod_venda, v.data_venda, c.nome AS cliente, f.nome AS funcionario, v.forma_pagamento FROM Venda v JOIN Cliente c ON v.cod_cliente = c.cod_cliente JOIN Funcionario f ON v.cod_func = f.cod_func;
+-- 2. Total de vendas por cliente
+SELECT c.cod_cliente, c.nome, SUM(iv.quantidade * iv.valor_unit) AS total_vendido FROM Cliente c JOIN Venda v ON c.cod_cliente = v.cod_cliente JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY c.cod_cliente, c.nome ORDER BY total_vendido DESC;
+-- 3. Produtos com estoque < 5
+SELECT p.cod_produto,p.nome,e.quantidade FROM Produto p JOIN Estoque e ON p.cod_produto = e.cod_produto WHERE e.quantidade < 5;
+-- 4. Top 10 produtos mais vendidos (por quantidade)
+SELECT p.cod_produto,p.nome,SUM(iv.quantidade) AS qtd_vendida FROM Produto p JOIN ItemVenda iv ON p.cod_produto = iv.cod_produto GROUP BY p.cod_produto,p.nome ORDER BY qtd_vendida DESC LIMIT 10;
+-- 5. Vendas por período (subselect exemplo)
+SELECT v.* FROM Venda v WHERE v.data_venda BETWEEN '2025-10-01' AND '2025-10-31';
+-- 6. Clientes sem compras (subselect)
+SELECT c.cod_cliente,c.nome FROM Cliente c WHERE c.cod_cliente NOT IN (SELECT v.cod_cliente FROM Venda v);
+-- 7. Valor médio por venda
+SELECT v.cod_venda, SUM(iv.quantidade*iv.valor_unit) AS valor_venda FROM Venda v JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY v.cod_venda;
+-- 8. Produtos por fornecedor
+SELECT f.nome AS fornecedor, p.nome AS produto FROM Fornecedor f JOIN Produto p ON f.cod_fornecedor = p.cod_fornecedor ORDER BY f.nome;
+-- 9. Estoque total por categoria
+SELECT cat.nome, SUM(e.quantidade) AS total_estoque FROM Categoria cat JOIN Produto p ON cat.cod_categoria = p.cod_categoria JOIN Estoque e ON p.cod_produto = e.cod_produto GROUP BY cat.nome;
+-- 10. Vendas com desconto aplicadas
+SELECT * FROM Venda WHERE desconto > 0;
+-- 11. Funcionários e total de vendas que participaram
+SELECT f.cod_func,f.nome,COUNT(DISTINCT v.cod_venda) AS num_vendas FROM Funcionario f LEFT JOIN Venda v ON f.cod_func = v.cod_func GROUP BY f.cod_func,f.nome;
+-- 12. Clientes VIP (com total gasto > 1000) usando HAVING
+SELECT c.cod_cliente,c.nome,SUM(iv.quantidade*iv.valor_unit) AS total FROM Cliente c JOIN Venda v ON c.cod_cliente = v.cod_cliente JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY c.cod_cliente,c.nome HAVING total > 1000;
+-- 13. Produtos sem vendas
+SELECT p.cod_produto,p.nome FROM Produto p WHERE p.cod_produto NOT IN (SELECT cod_produto FROM ItemVenda);
+-- 14. Média de preço por marca
+SELECT marca, AVG(preco) AS media_preco FROM Produto GROUP BY marca;
+-- 15. Últimas 10 vendas
+SELECT * FROM Venda ORDER BY data_venda DESC LIMIT 10;
+-- 16. Itens de uma venda específica (exemplo venda 1)
+SELECT iv.cod_venda, p.nome, iv.quantidade, iv.valor_unit FROM ItemVenda iv JOIN Produto p ON iv.cod_produto = p.cod_produto WHERE iv.cod_venda = 1;
+-- 17. Clientes e última data de compra
+SELECT c.cod_cliente,c.nome,MAX(v.data_venda) AS ultima_compra FROM Cliente c LEFT JOIN Venda v ON c.cod_cliente = v.cod_cliente GROUP BY c.cod_cliente,c.nome;
+-- 18. Produtos por cor e disponibilidade
+SELECT p.nome,p.cor,e.quantidade FROM Produto p JOIN Estoque e ON p.cod_produto = e.cod_produto WHERE e.quantidade > 0 ORDER BY p.cor;
+-- 19. Vendas por forma de pagamento
+SELECT forma_pagamento, COUNT(*) AS num_vendas, SUM(iv.quantidade*iv.valor_unit) AS total FROM Venda v JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY forma_pagamento;
+-- 20. Fornecedores com número de produtos
+SELECT f.nome, COUNT(p.cod_produto) AS qtd_produtos FROM Fornecedor f LEFT JOIN Produto p ON f.cod_fornecedor = p.cod_fornecedor GROUP BY f.nome;
+
+CREATE VIEW vw_produtos_estoque AS SELECT p.cod_produto,p.nome,e.quantidade FROM Produto p JOIN Estoque e ON p.cod_produto = e.cod_produto;
+CREATE VIEW vw_total_vendas_cliente AS SELECT c.cod_cliente,c.nome,SUM(iv.quantidade*iv.valor_unit) AS total FROM Cliente c JOIN Venda v ON c.cod_cliente = v.cod_cliente JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY c.cod_cliente,c.nome;
+CREATE VIEW vw_vendas_detalhadas AS SELECT v.cod_venda,v.data_venda,c.nome AS cliente,f.nome AS funcionario,v.forma_pagamento,v.desconto FROM Venda v JOIN Cliente c ON v.cod_cliente = c.cod_cliente JOIN Funcionario f ON v.cod_func = f.cod_func;
+CREATE VIEW vw_top_produtos AS SELECT p.cod_produto,p.nome,SUM(iv.quantidade) AS qtd_vendida FROM Produto p JOIN ItemVenda iv ON p.cod_produto = iv.cod_produto GROUP BY p.cod_produto,p.nome ORDER BY qtd_vendida DESC LIMIT 10;
+CREATE VIEW vw_clientes_sem_venda AS SELECT c.cod_cliente,c.nome FROM Cliente c WHERE c.cod_cliente NOT IN (SELECT v.cod_cliente FROM Venda v);
+CREATE VIEW vw_estoque_baixo AS SELECT p.cod_produto,p.nome,e.quantidade FROM Produto p JOIN Estoque e ON p.cod_produto = e.cod_produto WHERE e.quantidade < 5;
+CREATE VIEW vw_funcionario_vendas AS SELECT f.cod_func,f.nome,COUNT(v.cod_venda) AS num_vendas FROM Funcionario f LEFT JOIN Venda v ON f.cod_func = v.cod_func GROUP BY f.cod_func,f.nome;
+CREATE VIEW vw_valor_venda AS SELECT v.cod_venda,SUM(iv.quantidade*iv.valor_unit) AS valor_venda FROM Venda v JOIN ItemVenda iv ON v.cod_venda = iv.cod_venda GROUP BY v.cod_venda;
+CREATE VIEW vw_fornecedor_produtos AS SELECT f.cod_fornecedor,f.nome,COUNT(p.cod_produto) AS qtd_produtos FROM Fornecedor f LEFT JOIN Produto p ON f.cod_fornecedor = p.cod_fornecedor GROUP BY f.cod_fornecedor,f.nome;
+CREATE VIEW vw_media_preco_marca AS SELECT marca,AVG(preco) AS media_preco FROM Produto GROUP BY marca;
+
+DROP TABLE IF EXISTS ItemVenda;
+DROP TABLE IF EXISTS Estoque;
+DROP TABLE IF EXISTS Venda;
+DROP TABLE IF EXISTS Produto;
+DROP TABLE IF EXISTS Categoria;
+DROP TABLE IF EXISTS Cliente;
+DROP TABLE IF EXISTS Funcionario;
+DROP TABLE IF EXISTS Fornecedor;
